@@ -65,14 +65,14 @@
 </style>
 </head>
 <body>
-<h2>\u{1F3D0} Volleyball Duel \u2014 Cartoon Edition</h2>
-<p>P1: A/D move, W jump, S/SPACE hit, F smash &nbsp;|&nbsp; P2: \u2190/\u2192 move, \u2191 jump, \u2193 hit, / smash &nbsp;|&nbsp; First touch on your ground = point lost!</p>
+<h2>🏐 Volleyball Duel — Cartoon Edition</h2>
+<p>P1: A/D move, W jump, S/SPACE hit, F smash &nbsp;|&nbsp; P2: ←/→ move, ↑ jump, ↓ hit, / smash &nbsp;|&nbsp; First touch on your ground = point lost!</p>
 <div id="gameWrap">
   <div id="gameToolbar">
-    <button id="fsBtn" class="toolBtn">\u26F6 Fullscreen</button>
-    <button id="exitFsBtn" class="toolBtn">\u2715 Exit Fullscreen</button>
-    <button id="restartBtn" class="toolBtn">\u21BA Restart</button>
-    <button id="homeBtn" class="toolBtn">\u{1F3E0} Home</button>
+    <button id="fsBtn" class="toolBtn">⛶ Fullscreen</button>
+    <button id="exitFsBtn" class="toolBtn">✕ Exit Fullscreen</button>
+    <button id="restartBtn" class="toolBtn">↺ Restart</button>
+    <button id="homeBtn" class="toolBtn">🏠 Home</button>
   </div>
   <div id="boardArea">
     <canvas id="game" width="640" height="400"></canvas>
@@ -99,7 +99,7 @@
           </div>
           <div id="onlineStatus"></div>
         </div>
-        <button id="btnStart" class="modeBtn" style="background:#ffe156;border-color:#c9a300;padding:10px 28px;font-size:15px;margin-top:6px;">\u25B6 Start Game</button>
+        <button id="btnStart" class="modeBtn" style="background:#ffe156;border-color:#c9a300;padding:10px 28px;font-size:15px;margin-top:6px;">▶ Start Game</button>
       </div>
     </div>
   </div>
@@ -108,9 +108,9 @@
       <div class="padLabel">Player 1</div>
       <div class="jumpBar" id="p1Up">JUMP</div>
       <div class="moveStrip" id="p1Move">
-        <div class="moveHalf" id="p1Left">\u25C0</div>
+        <div class="moveHalf" id="p1Left">◀</div>
         <div class="moveDivider"></div>
-        <div class="moveHalf" id="p1Right">\u25B6</div>
+        <div class="moveHalf" id="p1Right">▶</div>
       </div>
       <div class="smashBtn" id="p1Smash">SMASH</div>
     </div>
@@ -118,9 +118,9 @@
       <div class="padLabel">Player 2</div>
       <div class="jumpBar" id="p2Up">JUMP</div>
       <div class="moveStrip" id="p2Move">
-        <div class="moveHalf" id="p2Left">\u25C0</div>
+        <div class="moveHalf" id="p2Left">◀</div>
         <div class="moveDivider"></div>
-        <div class="moveHalf" id="p2Right">\u25B6</div>
+        <div class="moveHalf" id="p2Right">▶</div>
       </div>
       <div class="smashBtn" id="p2Smash">SMASH</div>
     </div>
@@ -129,7 +129,7 @@
 <div id="status">Score: 0 - 0</div>
 <div id="restartHint"></div>
 <script>
-const SERVER_URL = 'wss://vollyball-dual-server.onrender.com';
+const SERVER_URL = 'wss://YOUR-SERVER-ADDRESS-HERE';
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const statusEl = document.getElementById('status');
@@ -231,7 +231,7 @@ function handleWSMessage(msg) {
     if (st.gameOver && !gameOver) {
       gameOver = true;
       const sideName = score[0] > score[1] ? 'Left' : 'Right';
-      pointPopup.innerHTML = '<div class="ppTitle">\u{1F3C6} ' + sideName + ' Player Wins the Match!</div><div class="ppScore">' + score[0] + ' - ' + score[1] + '</div>';
+      pointPopup.innerHTML = '<div class="ppTitle">🏆 ' + sideName + ' Player Wins the Match!</div><div class="ppScore">' + score[0] + ' - ' + score[1] + '</div>';
       pointPopup.classList.add('show');
     }
   }
@@ -442,7 +442,7 @@ function awardPoint(side) {
   const sideName = side === 0 ? 'Left' : 'Right';
   if (matchWon) {
     gameOver = true;
-    pointPopup.innerHTML = '<div class="ppTitle">\u{1F3C6} ' + sideName + ' Player Wins the Match!</div><div class="ppScore">' + score[0] + ' - ' + score[1] + '</div><div class="ppSub">Tap anywhere to play again</div>';
+    pointPopup.innerHTML = '<div class="ppTitle">🏆 ' + sideName + ' Player Wins the Match!</div><div class="ppScore">' + score[0] + ' - ' + score[1] + '</div><div class="ppSub">Tap anywhere to play again</div>';
     pointPopup.classList.add('show');
   } else {
     pointPopup.innerHTML = '<div class="ppTitle">Point: ' + sideName + '</div><div class="ppScore">' + score[0] + ' - ' + score[1] + '</div><div class="ppSub">First to ' + WINNING_SCORE + ' wins</div>';

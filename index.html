@@ -63,19 +63,17 @@
   .modeBtn { padding: 7px 14px; margin: 3px; border: 3px solid #2b1b0e; border-radius: 10px; background: #fff; cursor: pointer; font-size: 13px; font-weight: bold; box-shadow: 0 3px 0 #2b1b0e; }
   .modeBtn:active { transform: translateY(2px); box-shadow: 0 1px 0 #2b1b0e; }
   .modeBtn.active { background: #ffe156; border-color: #c9a300; }
-  #roomCodeInput { font-size: 16px; letter-spacing: 3px; text-align: center; text-transform: uppercase; width: 110px; padding: 6px; border: 3px solid #2b1b0e; border-radius: 8px; font-weight: bold; }
-  #onlineStatus { font-size: 12px; color: #6a5638; margin-top: 6px; min-height: 16px; }
 </style>
 </head>
 <body>
-<h2>ðŸ Volleyball Duel â€” Cartoon Edition</h2>
-<p>P1: A/D move, W jump, S/SPACE hit, F smash &nbsp;|&nbsp; P2: â†/â†’ move, â†‘ jump, â†“ hit, / smash &nbsp;|&nbsp; First touch on your ground = point lost!</p>
+<h2>🏐 Volleyball Duel — Cartoon Edition</h2>
+<p>P1: A/D move, W jump, S/SPACE hit, F smash &nbsp;|&nbsp; P2: ←/→ move, ↑ jump, ↓ hit, / smash &nbsp;|&nbsp; First touch on your ground = point lost!</p>
 <div id="gameWrap">
   <div id="gameToolbar">
-    <button id="fsBtn" class="toolBtn">â›¶ Fullscreen</button>
-    <button id="exitFsBtn" class="toolBtn">âœ• Exit Fullscreen</button>
-    <button id="restartBtn" class="toolBtn">â†º Restart</button>
-    <button id="homeBtn" class="toolBtn">ðŸ  Home</button>
+    <button id="fsBtn" class="toolBtn">⛶ Fullscreen</button>
+    <button id="exitFsBtn" class="toolBtn">✕ Exit Fullscreen</button>
+    <button id="restartBtn" class="toolBtn">↺ Restart</button>
+    <button id="homeBtn" class="toolBtn">🏠 Home</button>
   </div>
   <div id="boardArea">
     <canvas id="game" width="640" height="400"></canvas>
@@ -92,7 +90,7 @@
           <button id="btnLeft" class="modeBtn">Left (Red)</button>
           <button id="btnRight" class="modeBtn">Right (Blue)</button>
         </div>
-        <button id="btnStart" class="modeBtn" style="background:#ffe156;border-color:#c9a300;padding:10px 28px;font-size:15px;margin-top:6px;">â–¶ Start Game</button>
+        <button id="btnStart" class="modeBtn" style="background:#ffe156;border-color:#c9a300;padding:10px 28px;font-size:15px;margin-top:6px;">▶ Start Game</button>
       </div>
     </div>
   </div>
@@ -101,9 +99,9 @@
       <div class="padLabel">Player 1</div>
       <div class="jumpBar" id="p1Up">JUMP</div>
       <div class="moveStrip" id="p1Move">
-        <div class="moveHalf" id="p1Left">â—€</div>
+        <div class="moveHalf" id="p1Left">◀</div>
         <div class="moveDivider"></div>
-        <div class="moveHalf" id="p1Right">â–¶</div>
+        <div class="moveHalf" id="p1Right">▶</div>
       </div>
       <div class="smashBtn" id="p1Smash">SMASH</div>
     </div>
@@ -111,9 +109,9 @@
       <div class="padLabel">Player 2</div>
       <div class="jumpBar" id="p2Up">JUMP</div>
       <div class="moveStrip" id="p2Move">
-        <div class="moveHalf" id="p2Left">â—€</div>
+        <div class="moveHalf" id="p2Left">◀</div>
         <div class="moveDivider"></div>
-        <div class="moveHalf" id="p2Right">â–¶</div>
+        <div class="moveHalf" id="p2Right">▶</div>
       </div>
       <div class="smashBtn" id="p2Smash">SMASH</div>
     </div>
@@ -121,6 +119,7 @@
 </div>
 <div id="status">Score: 0 - 0</div>
 <div id="restartHint"></div>
+
 <script>
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -132,6 +131,7 @@ const GRAVITY = 0.45;
 const NET_X = W / 2;
 const NET_HEIGHT = 110;
 const NET_TOP = GROUND_Y - NET_HEIGHT;
+
 let score = [0, 0];
 let serveSide = 0;
 let pointPaused = false;
@@ -139,15 +139,33 @@ let gameOver = false;
 let gameStarted = false;
 let appMode = 'local2p';
 let humanSide = 0;
+
 const fsBtn = document.getElementById('fsBtn');
 const exitFsBtn = document.getElementById('exitFsBtn');
-function supportsRealFullscreen() { return !!(gameWrap.requestFullscreen || gameWrap.webkitRequestFullscreen || gameWrap.mozRequestFullScreen || gameWrap.msRequestFullscreen); }
-function enterPseudoFullscreen() { gameWrap.classList.add('pseudoFullscreen'); document.body.classList.add('pseudoFsActive'); }
-function exitPseudoFullscreen() { gameWrap.classList.remove('pseudoFullscreen'); document.body.classList.remove('pseudoFsActive'); }
+
+function supportsRealFullscreen() {
+  return !!(gameWrap.requestFullscreen || gameWrap.webkitRequestFullscreen || gameWrap.mozRequestFullScreen || gameWrap.msRequestFullscreen);
+}
+function enterPseudoFullscreen() {
+  gameWrap.classList.add('pseudoFullscreen');
+  document.body.classList.add('pseudoFsActive');
+}
+function exitPseudoFullscreen() {
+  gameWrap.classList.remove('pseudoFullscreen');
+  document.body.classList.remove('pseudoFsActive');
+}
 function bindTap(el, handler) {
   let handled = false;
-  el.addEventListener('touchend', function(e) { e.preventDefault(); e.stopPropagation(); handled = true; handler(); setTimeout(function(){ handled = false; }, 350); }, { passive: false });
-  el.addEventListener('click', function(e) { e.stopPropagation(); if (handled) return; handler(); });
+  el.addEventListener('touchend', function(e) {
+    e.preventDefault(); e.stopPropagation();
+    handled = true; handler();
+    setTimeout(function(){ handled = false; }, 350);
+  }, { passive: false });
+  el.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (handled) return;
+    handler();
+  });
 }
 bindTap(fsBtn, async function() {
   if (supportsRealFullscreen()) {
@@ -160,115 +178,63 @@ bindTap(fsBtn, async function() {
   enterPseudoFullscreen();
 });
 bindTap(exitFsBtn, function() {
-  if (document.fullscreenElement || document.webkitFullscreenElement) { (document.exitFullscreen ? document.exitFullscreen() : document.webkitExitFullscreen && document.webkitExitFullscreen()); }
+  if (document.fullscreenElement || document.webkitFullscreenElement) {
+    (document.exitFullscreen ? document.exitFullscreen() : (document.webkitExitFullscreen && document.webkitExitFullscreen()));
+  }
   exitPseudoFullscreen();
 });
 document.addEventListener('fullscreenchange', function() { if (!document.fullscreenElement) exitPseudoFullscreen(); });
 document.addEventListener('webkitfullscreenchange', function() { if (!document.webkitFullscreenElement) exitPseudoFullscreen(); });
+
 const btn1p = document.getElementById('btn1p');
 const btn2p = document.getElementById('btn2p');
-const btnOnline = document.getElementById('btnOnline');
 const sideBar = document.getElementById('sideBar');
-const onlineBar = document.getElementById('onlineBar');
 const btnLeft = document.getElementById('btnLeft');
 const btnRight = document.getElementById('btnRight');
-const btnHost = document.getElementById('btnHost');
-const btnJoin = document.getElementById('btnJoin');
-const roomCodeInput = document.getElementById('roomCodeInput');
-const onlineStatusEl = document.getElementById('onlineStatus');
 const btnStart = document.getElementById('btnStart');
 const restartBtn = document.getElementById('restartBtn');
 const homeBtn = document.getElementById('homeBtn');
 const startScreen = document.getElementById('startScreen');
+
 btn2p.classList.add('active');
 btnLeft.classList.add('active');
+
 function setMode(mode) {
   appMode = mode;
-  [btn2p, btn1p, btnOnline].forEach(function(b){ b.classList.remove('active'); });
+  [btn2p, btn1p].forEach(function(b){ b.classList.remove('active'); });
   sideBar.style.display = 'none';
-  onlineBar.style.display = 'none';
-  btnStart.disabled = false;
   if (mode === 'local2p') { btn2p.classList.add('active'); }
   if (mode === 'ai') { btn1p.classList.add('active'); sideBar.style.display = 'block'; }
-  if (mode === 'online') { btnOnline.classList.add('active'); onlineBar.style.display = 'block'; btnStart.disabled = !onlineRole; }
   updatePadVisibility();
 }
 btn2p.addEventListener('click', function(){ setMode('local2p'); });
 btn1p.addEventListener('click', function(){ setMode('ai'); });
-btnOnline.addEventListener('click', function(){ setMode('online'); });
 btnLeft.addEventListener('click', function(){ humanSide = 0; btnLeft.classList.add('active'); btnRight.classList.remove('active'); updatePadVisibility(); });
 btnRight.addEventListener('click', function(){ humanSide = 1; btnRight.classList.add('active'); btnLeft.classList.remove('active'); updatePadVisibility(); });
-function randomCode() { const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)]; return s; }
-function connectWS(code, role) {
-  return new Promise(function(resolve, reject) {
-    try { ws = new WebSocket(SERVER_URL + '?room=' + code + '&role=' + role); } catch (e) { reject(e); return; }
-    ws.onopen = function() { resolve(); };
-    ws.onerror = function(e) { reject(e); };
-    ws.onclose = function() { onlineStatusEl.textContent = 'Connection lost. Go Home and reconnect.'; };
-    ws.onmessage = function(event) { let msg; try { msg = JSON.parse(event.data); } catch (e) { return; } handleWSMessage(msg); };
-  });
-}
-function handleWSMessage(msg) {
-  if (msg.type === 'peer_joined' && onlineRole === 'host') { onlineStatusEl.textContent = 'Player 2 joined! Tap Start Game.'; }
-  if (msg.type === 'input' && onlineRole === 'host') { remoteInput2 = msg.payload; }
-  if (msg.type === 'state' && onlineRole === 'client') {
-    const st = msg.payload;
-    Object.assign(p1, st.p1); Object.assign(p2, st.p2); Object.assign(ball, st.ball);
-    score = st.score;
-    statusEl.textContent = 'Score: ' + score[0] + ' - ' + score[1];
-    if (st.gameOver && !gameOver) {
-      gameOver = true;
-      const sideName = score[0] > score[1] ? 'Left' : 'Right';
-      pointPopup.innerHTML = '<div class="ppTitle">ðŸ† ' + sideName + ' Player Wins the Match!</div><div class="ppScore">' + score[0] + ' - ' + score[1] + '</div>';
-      pointPopup.classList.add('show');
-    }
-  }
-  if (msg.type === 'peer_left') { onlineStatusEl.textContent = 'Other player disconnected.'; }
-}
-btnHost.addEventListener('click', async function() {
-  const code = randomCode();
-  onlineCode = code; onlineRole = 'host'; mySide = 0;
-  onlineStatusEl.textContent = 'Connecting to server...';
-  try {
-    await connectWS(code, 'host');
-    onlineStatusEl.textContent = 'Room code: ' + code + ' \u2014 share this with player 2! Waiting...';
-    btnStart.disabled = false;
-  } catch (e) { onlineStatusEl.textContent = 'Could not reach the server. Check SERVER_URL.'; }
-});
-btnJoin.addEventListener('click', async function() {
-  const code = roomCodeInput.value.trim().toUpperCase();
-  if (code.length < 4) { onlineStatusEl.textContent = 'Enter the 4-character code.'; return; }
-  onlineCode = code; onlineRole = 'client'; mySide = 1;
-  onlineStatusEl.textContent = 'Connecting...';
-  try {
-    await connectWS(code, 'client');
-    onlineStatusEl.textContent = 'Joined room ' + code + '! Tap Start Game.';
-    btnStart.disabled = false;
-  } catch (e) { onlineStatusEl.textContent = 'Could not join. Check the code and try again.'; }
-});
+
 function goHome() {
-  if (ws) { try { ws.close(); } catch(e){} ws = null; }
-  onlineRole = null; onlineCode = null; gameStarted = false; gameOver = false; pointPaused = false;
+  gameStarted = false; gameOver = false; pointPaused = false;
   pointPopup.classList.remove('show');
   score = [0, 0];
   statusEl.textContent = 'Score: 0 - 0';
   restartBtn.style.display = 'none'; homeBtn.style.display = 'none';
   startScreen.style.display = 'flex';
   document.getElementById('touchControls').style.display = 'none';
-  onlineStatusEl.textContent = ''; roomCodeInput.value = '';
 }
-bindTap(restartBtn, function() { if (appMode === 'online' && onlineRole === 'client') return; restartMatch(); });
+bindTap(restartBtn, function() { restartMatch(); });
 bindTap(homeBtn, goHome);
+
 btnStart.addEventListener('click', function() {
-  if (appMode === 'online' && !onlineRole) return;
   startScreen.style.display = 'none';
   document.getElementById('touchControls').style.display = 'flex';
   gameStarted = true;
   restartBtn.style.display = 'inline-block'; homeBtn.style.display = 'inline-block';
   updatePadVisibility();
 });
+
 const padP1 = document.getElementById('padP1');
 const padP2 = document.getElementById('padP2');
+
 function updatePadVisibility() {
   const touchControls = document.getElementById('touchControls');
   if (appMode === 'local2p') {
@@ -281,6 +247,7 @@ function updatePadVisibility() {
     else { padP1.style.display = 'none'; padP2.style.display = 'flex'; padP2.style.width = '92%'; padP2.style.maxWidth = '560px'; }
   }
 }
+
 function bindHold(el, keyCode) {
   const press = function(e) { e.preventDefault(); keys[keyCode] = true; el.classList.add('pressed'); };
   const release = function(e) { e.preventDefault(); keys[keyCode] = false; el.classList.remove('pressed'); };
@@ -300,15 +267,25 @@ bindHold(document.getElementById('p2Right'), 'ArrowRight');
 bindHold(document.getElementById('p2Up'), 'ArrowUp');
 bindHold(document.getElementById('p2Smash'), 'Slash');
 updatePadVisibility();
+
 const keys = {};
 window.addEventListener('keydown', function(e){ keys[e.code] = true; });
 window.addEventListener('keyup', function(e){ keys[e.code] = false; });
-function makePlayer(x, color, facing) { return { x: x, y: GROUND_Y, vx: 0, vy: 0, w: 40, h: 60, color: color, facing: facing, onGround: true, hitCooldown: 0, autoJumpTimer: Math.floor(Math.random()*40), isFlipping: false, flipProgress: 0 }; }
+
+function makePlayer(x, color, facing) {
+  return { x: x, y: GROUND_Y, vx: 0, vy: 0, w: 40, h: 60, color: color, facing: facing, onGround: true, hitCooldown: 0, autoJumpTimer: Math.floor(Math.random()*40), isFlipping: false, flipProgress: 0 };
+}
 let p1 = makePlayer(140, '#ff5e62', 1);
 let p2 = makePlayer(500, '#3aa8ff', -1);
 let ball = { x: 140, y: GROUND_Y - 130, r: 24, vx: 0, vy: 0, floating: true, floatTime: 0 };
-function resetServe(side) { serveSide = side; const x = side === 0 ? 140 : 500; ball.x = x; ball.y = GROUND_Y - 130; ball.vx = 0; ball.vy = 0; ball.floating = true; ball.floatTime = 0; }
+
+function resetServe(side) {
+  serveSide = side;
+  const x = side === 0 ? 140 : 500;
+  ball.x = x; ball.y = GROUND_Y - 130; ball.vx = 0; ball.vy = 0; ball.floating = true; ball.floatTime = 0;
+}
 resetServe(0);
+
 function updatePlayer(p, left, right, jump, hit, opponent) {
   const speed = 6;
   if (keys[left]) { p.vx = -speed; p.facing = -1; }
@@ -426,7 +403,7 @@ function awardPoint(side) {
   const sideName = side === 0 ? 'Left' : 'Right';
   if (matchWon) {
     gameOver = true;
-    pointPopup.innerHTML = '<div class="ppTitle">ðŸ† ' + sideName + ' Player Wins the Match!</div><div class="ppScore">' + score[0] + ' - ' + score[1] + '</div><div class="ppSub">Tap anywhere to play again</div>';
+    pointPopup.innerHTML = '<div class="ppTitle">🏆 ' + sideName + ' Player Wins the Match!</div><div class="ppScore">' + score[0] + ' - ' + score[1] + '</div><div class="ppSub">Tap anywhere to play again</div>';
     pointPopup.classList.add('show');
   } else {
     pointPopup.innerHTML = '<div class="ppTitle">Point: ' + sideName + '</div><div class="ppScore">' + score[0] + ' - ' + score[1] + '</div><div class="ppSub">First to ' + WINNING_SCORE + ' wins</div>';
@@ -446,6 +423,7 @@ function restartMatch() {
 }
 canvas.addEventListener('click', function(){ if (gameOver) restartMatch(); });
 canvas.addEventListener('touchstart', function(e){ if (gameOver) { e.preventDefault(); restartMatch(); } }, { passive: false });
+
 let cloudOffset = 0;
 function drawBackgroundExtras() {
   cloudOffset = (cloudOffset + 0.15) % (W + 200);
@@ -552,7 +530,6 @@ function drawBall() {
   ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,ball.r,Math.PI+0.6,Math.PI+1.3); ctx.closePath(); ctx.fill();
   ctx.restore();
 }
-let remoteInput2 = { left:false, right:false, jump:false, hit:false, smash:false };
 function loop(ts) {
   if (!gameStarted || gameOver) { draw(); requestAnimationFrame(loop); return; }
   if (appMode === 'ai') {
@@ -577,6 +554,7 @@ function loop(ts) {
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./sw.js').catch(function(){});

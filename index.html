@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2129877342025466" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Volleyball Duel - Cartoon Edition</title>
@@ -18,7 +17,10 @@
   #gameWrap:fullscreen, #gameWrap.pseudoFullscreen { max-width: 100vw; width: 100vw; height: 100vh; background: #1a1430; padding: 6px; justify-content: flex-start; }
   #gameWrap:fullscreen #boardArea, #gameWrap.pseudoFullscreen #boardArea { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; width: 100%; }
   #gameWrap:fullscreen #touchControls, #gameWrap.pseudoFullscreen #touchControls { flex-shrink: 0; }
-  #gameWrap:fullscreen canvas, #gameWrap.pseudoFullscreen canvas { height: 100%; width: auto; max-width: 100%; max-height: 100%; }
+  #gameWrap:fullscreen canvas, #gameWrap.pseudoFullscreen canvas { height: auto; width: 100%; max-width: 100%; max-height: 100%; object-fit: contain; }
+  @media (orientation: landscape) {
+    #gameWrap:fullscreen canvas, #gameWrap.pseudoFullscreen canvas { height: 100%; width: auto; max-width: 100%; }
+  }
   #gameWrap.pseudoFullscreen { position: fixed; top: 0; left: 0; z-index: 9999; }
   body.pseudoFsActive { overflow: hidden; }
   body.pseudoFsActive > *:not(#gameWrap) { display: none; }
@@ -84,21 +86,11 @@
         <div id="modeBar" style="margin-bottom:10px;">
           <button id="btn2p" class="modeBtn">2P Same Device</button>
           <button id="btn1p" class="modeBtn">1P vs AI</button>
-          <button id="btnOnline" class="modeBtn">2 Devices (Online)</button>
         </div>
         <div id="sideBar" style="margin-bottom:10px; display:none;">
           <span style="font-size:13px; margin-right:6px; color:#4a2f12;">Play as:</span>
           <button id="btnLeft" class="modeBtn">Left (Red)</button>
           <button id="btnRight" class="modeBtn">Right (Blue)</button>
-        </div>
-        <div id="onlineBar" style="margin-bottom:10px; display:none;">
-          <div style="font-size:12px; color:#4a2f12; margin-bottom:8px;">Both devices open this same page. One device taps Host, the other taps Join with the code.</div>
-          <button id="btnHost" class="modeBtn">Host New Room</button>
-          <div style="margin:8px 0;">
-            <input id="roomCodeInput" maxlength="4" placeholder="CODE">
-            <button id="btnJoin" class="modeBtn">Join Room</button>
-          </div>
-          <div id="onlineStatus"></div>
         </div>
         <button id="btnStart" class="modeBtn" style="background:#ffe156;border-color:#c9a300;padding:10px 28px;font-size:15px;margin-top:6px;">▶ Start Game</button>
       </div>
@@ -130,7 +122,6 @@
 <div id="status">Score: 0 - 0</div>
 <div id="restartHint"></div>
 <script>
-const SERVER_URL = 'wss://vollyball-dual-server.onrender.com';
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const statusEl = document.getElementById('status');
@@ -148,15 +139,11 @@ let gameOver = false;
 let gameStarted = false;
 let appMode = 'local2p';
 let humanSide = 0;
-let onlineRole = null;
-let onlineCode = null;
-let mySide = 0;
-let ws = null;
 const fsBtn = document.getElementById('fsBtn');
 const exitFsBtn = document.getElementById('exitFsBtn');
 function supportsRealFullscreen() { return !!(gameWrap.requestFullscreen || gameWrap.webkitRequestFullscreen || gameWrap.mozRequestFullScreen || gameWrap.msRequestFullscreen); }
-function enterPseudoFullscreen() { gameWrap.classList.add('pseudoFullscreen'); document.body.classList.add('pseudoFsActive'); try { screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(function(){}); } catch(e) {} }
-function exitPseudoFullscreen() { gameWrap.classList.remove('pseudoFullscreen'); document.body.classList.remove('pseudoFsActive'); try { screen.orientation && screen.orientation.unlock && screen.orientation.unlock(); } catch(e) {} }
+function enterPseudoFullscreen() { gameWrap.classList.add('pseudoFullscreen'); document.body.classList.add('pseudoFsActive'); }
+function exitPseudoFullscreen() { gameWrap.classList.remove('pseudoFullscreen'); document.body.classList.remove('pseudoFsActive'); }
 function bindTap(el, handler) {
   let handled = false;
   el.addEventListener('touchend', function(e) { e.preventDefault(); e.stopPropagation(); handled = true; handler(); setTimeout(function(){ handled = false; }, 350); }, { passive: false });
@@ -291,10 +278,6 @@ function updatePadVisibility() {
   } else if (appMode === 'ai') {
     touchControls.style.justifyContent = 'center';
     if (humanSide === 0) { padP1.style.display = 'flex'; padP2.style.display = 'none'; padP1.style.width = '92%'; padP1.style.maxWidth = '560px'; }
-    else { padP1.style.display = 'none'; padP2.style.display = 'flex'; padP2.style.width = '92%'; padP2.style.maxWidth = '560px'; }
-  } else if (appMode === 'online') {
-    touchControls.style.justifyContent = 'center';
-    if (mySide === 0) { padP1.style.display = 'flex'; padP2.style.display = 'none'; padP1.style.width = '92%'; padP1.style.maxWidth = '560px'; }
     else { padP1.style.display = 'none'; padP2.style.display = 'flex'; padP2.style.width = '92%'; padP2.style.maxWidth = '560px'; }
   }
 }
@@ -569,27 +552,6 @@ function drawBall() {
   ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,ball.r,Math.PI+0.6,Math.PI+1.3); ctx.closePath(); ctx.fill();
   ctx.restore();
 }
-let lastSendTime = 0;
-const SEND_INTERVAL = 60;
-function onlineSendLoop(ts) {
-  if (!gameStarted || appMode !== 'online' || !ws || ws.readyState !== WebSocket.OPEN) return;
-  if (ts - lastSendTime > SEND_INTERVAL) {
-    lastSendTime = ts;
-    if (onlineRole === 'host') {
-      ws.send(JSON.stringify({ type: 'state', payload: {
-        p1: { x: p1.x, y: p1.y, facing: p1.facing, isFlipping: p1.isFlipping, flipProgress: p1.flipProgress },
-        p2: { x: p2.x, y: p2.y, facing: p2.facing, isFlipping: p2.isFlipping, flipProgress: p2.flipProgress },
-        ball: { x: ball.x, y: ball.y, vx: ball.vx, vy: ball.vy, floating: ball.floating },
-        score: score, gameOver: gameOver, pointPaused: pointPaused
-      }}));
-    } else {
-      ws.send(JSON.stringify({ type: 'input', payload: {
-        left: !!keys['ArrowLeft'], right: !!keys['ArrowRight'], jump: !!keys['ArrowUp'],
-        hit: !!keys['ArrowDown'], smash: !!keys['Slash']
-      }}));
-    }
-  }
-}
 let remoteInput2 = { left:false, right:false, jump:false, hit:false, smash:false };
 function loop(ts) {
   if (!gameStarted || gameOver) { draw(); requestAnimationFrame(loop); return; }
@@ -605,17 +567,6 @@ function loop(ts) {
     }
     if (keys['Space'] && p1.hitCooldown === 0) { tryHit(p1); p1.hitCooldown = 12; }
     updateBall();
-  } else if (appMode === 'online') {
-    if (onlineRole === 'host') {
-      updatePlayer(p1, 'KeyA', 'KeyD', 'KeyW', 'KeyS', p2);
-      keys['ArrowLeft'] = remoteInput2.left; keys['ArrowRight'] = remoteInput2.right;
-      keys['ArrowUp'] = remoteInput2.jump; keys['ArrowDown'] = remoteInput2.hit;
-      keys['Slash'] = remoteInput2.smash;
-      updatePlayer(p2, 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', p1);
-      if (keys['Space'] && p1.hitCooldown === 0) { tryHit(p1); p1.hitCooldown = 12; }
-      updateBall();
-    }
-    onlineSendLoop(ts || performance.now());
   } else {
     updatePlayer(p1, 'KeyA', 'KeyD', 'KeyW', 'KeyS', p2);
     updatePlayer(p2, 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', p1);

@@ -27,12 +27,21 @@
   #gameToolbar { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; width: 100%; padding: 6px 0; }
   .toolBtn { border: 2px solid #fff8e8; border-radius: 8px; padding: 7px 11px; font-size: 13px; font-weight: bold; cursor: pointer; touch-action: manipulation; color: #fff8e8; white-space: nowrap; }
   #fsBtn, #exitFsBtn { background: rgba(43,27,14,0.85); }
+  #siteHomeBtn {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(43,27,14,0.92); color: #fff8e8; text-decoration: none;
+    border: 2px solid #fff8e8; border-radius: 8px; padding: 7px 11px;
+    font-size: 13px; font-weight: bold; white-space: nowrap;
+    touch-action: manipulation;
+  }
+  #siteHomeBtn:focus-visible { outline: 3px solid #ffe156; outline-offset: 2px; }
+
   #restartBtn { background: rgba(255,94,98,0.9); display: none; }
   #homeBtn { background: rgba(58,168,255,0.9); display: none; }
   #exitFsBtn { display: none; }
   #gameWrap.pseudoFullscreen #exitFsBtn { display: inline-block; }
   #gameWrap.pseudoFullscreen #fsBtn { display: none; }
-  @media (max-width: 480px) { .toolBtn { font-size: 11px; padding: 5px 8px; } #gameToolbar { gap: 4px; padding: 4px 0; } }
+  @media (max-width: 480px) { .toolBtn, #siteHomeBtn { font-size: 11px; padding: 5px 8px; } #gameToolbar { gap: 4px; padding: 4px 0; } }
   @media (max-width: 360px) { .toolBtn { font-size: 10px; padding: 4px 6px; } }
   #boardArea { position: relative; width: 100%; display: flex; justify-content: center; }
   #startScreen { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(20, 10, 40, 0.6); display: flex; align-items: center; justify-content: center; z-index: 70; border-radius: 14px; }
@@ -70,6 +79,7 @@
 <p>P1: A/D move, W jump, S/SPACE hit, F smash &nbsp;|&nbsp; P2: ←/→ move, ↑ jump, ↓ hit, / smash &nbsp;|&nbsp; First touch on your ground = point lost!</p>
 <div id="gameWrap">
   <div id="gameToolbar">
+    <a id="siteHomeBtn" href="https://sunilcap.github.io/" aria-label="Back to Scotcha home">← Back to Home</a>
     <button id="fsBtn" class="toolBtn">⛶ Fullscreen</button>
     <button id="exitFsBtn" class="toolBtn">✕ Exit Fullscreen</button>
     <button id="restartBtn" class="toolBtn">↺ Restart</button>

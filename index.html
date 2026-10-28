@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Volleyball Duel - Cartoon Edition</title>
-<link rel="manifest" href="./manifest.json">
+<title>Volleyball Duel - Cartoon Edition | Scotcha</title>
+<link rel="manifest" href="/games/volleyball-duel/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="64x64" href="/icons/volleyball-duel-favicon-64.png">
+<link rel="apple-touch-icon" href="/icons/volleyball-duel-apple-touch-icon.png">
 <meta name="theme-color" content="#2b1b0e">
-<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Volleyball Duel">
@@ -26,7 +28,8 @@
   body.pseudoFsActive > *:not(#gameWrap) { display: none; }
   #gameToolbar { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; width: 100%; padding: 6px 0; }
   .toolBtn { border: 2px solid #fff8e8; border-radius: 8px; padding: 7px 11px; font-size: 13px; font-weight: bold; cursor: pointer; touch-action: manipulation; color: #fff8e8; white-space: nowrap; }
-  #fsBtn, #exitFsBtn { background: rgba(43,27,14,0.85); }
+  #fsBtn, #exitFsBtn, #installBtn { background: rgba(43,27,14,0.85); }
+  #installBtn { display: none; }
   #siteHomeBtn {
     display: inline-flex; align-items: center; justify-content: center;
     background: rgba(43,27,14,0.92); color: #fff8e8; text-decoration: none;
@@ -47,6 +50,8 @@
   #startScreen { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(20, 10, 40, 0.6); display: flex; align-items: center; justify-content: center; z-index: 70; border-radius: 14px; }
   #startCard { background: #fff8e8; border-radius: 18px; padding: 22px 26px; text-align: center; box-shadow: 0 8px 0 #2b1b0e, 0 8px 24px rgba(0,0,0,0.4); border: 4px solid #2b1b0e; max-width: 92%; max-height: 88vh; overflow-y: auto; }
   #startCard h3 { margin: 0 0 12px; font-size: 18px; }
+  .cardbrand { margin-top: 12px; font-size: 12px; font-weight: bold; color: #6a5638; }
+  .cardbrand b { color: #e0451f; }
   #pointPopup { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.85); background: #fff3cf; color: #2b1b0e; padding: 18px 32px; border-radius: 18px; text-align: center; pointer-events: none; opacity: 0; transition: opacity 0.2s, transform 0.2s; z-index: 60; min-width: 220px; border: 4px solid #2b1b0e; box-shadow: 0 6px 0 #2b1b0e; }
   #pointPopup.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   #pointPopup .ppTitle { font-size: 16px; font-weight: bold; color: #ff5e3a; margin-bottom: 8px; }
@@ -68,7 +73,7 @@
   p { margin: 0 0 8px; font-size: 13px; color: #4a2f12; text-align: center; max-width: 600px; padding: 0 10px; }
   canvas { background: linear-gradient(#bdeaff 0%, #bdeaff 68%, #8fd957 68%, #6fc23f 100%); border: 5px solid #2b1b0e; border-radius: 14px; width: 100%; max-width: 640px; height: auto; touch-action: none; box-shadow: 0 6px 0 #2b1b0e; }
   #status { margin-top: 8px; font-size: 22px; font-weight: bold; color: #fff8e8; text-shadow: 2px 2px 0 #2b1b0e; }
-  #restartHint { font-size: 13px; color: #4a2f12; height: 18px; }
+  #restartHint { font-size: 13px; color: #4a2f12; min-height: 18px; text-align: center; padding: 0 12px; }
   .modeBtn { padding: 7px 14px; margin: 3px; border: 3px solid #2b1b0e; border-radius: 10px; background: #fff; cursor: pointer; font-size: 13px; font-weight: bold; box-shadow: 0 3px 0 #2b1b0e; }
   .modeBtn:active { transform: translateY(2px); box-shadow: 0 1px 0 #2b1b0e; }
   .modeBtn.active { background: #ffe156; border-color: #c9a300; }
@@ -79,9 +84,10 @@
 <p>P1: A/D move, W jump, S/SPACE hit, F smash &nbsp;|&nbsp; P2: ←/→ move, ↑ jump, ↓ hit, / smash &nbsp;|&nbsp; First touch on your ground = point lost!</p>
 <div id="gameWrap">
   <div id="gameToolbar">
-    <a id="siteHomeBtn" href="https://sunilcap.github.io/" aria-label="Back to Scotcha home">← Back to Home</a>
+    <a id="siteHomeBtn" href="/" aria-label="Back to Scotcha home">← Back to Home</a>
     <button id="fsBtn" class="toolBtn">⛶ Fullscreen</button>
     <button id="exitFsBtn" class="toolBtn">✕ Exit Fullscreen</button>
+    <button id="installBtn" class="toolBtn">📲 Install</button>
     <button id="restartBtn" class="toolBtn">↺ Restart</button>
     <button id="homeBtn" class="toolBtn">🏠 Home</button>
   </div>
@@ -101,6 +107,7 @@
           <button id="btnRight" class="modeBtn">Right (Blue)</button>
         </div>
         <button id="btnStart" class="modeBtn" style="background:#ffe156;border-color:#c9a300;padding:10px 28px;font-size:15px;margin-top:6px;">▶ Start Game</button>
+        <div class="cardbrand">A game by <b>Scotcha</b> · scotcha.in</div>
       </div>
     </div>
   </div>
@@ -482,12 +489,28 @@ function drawNet() {
   ctx.fillRect(NET_X - 20, NET_TOP - 4, 40, 8);
   ctx.strokeRect(NET_X - 20, NET_TOP - 4, 40, 8);
 }
+// Scotcha brand badge, drawn on the canvas so it scales with the game and shows in recordings.
+function drawBrand() {
+  const x = 10, y = H - 25, h = 19, t = 'scotcha.in';
+  ctx.save();
+  ctx.font = 'bold 11px Comic Sans MS, Segoe UI, sans-serif';
+  const w = ctx.measureText(t).width + h + 10;
+  ctx.fillStyle = 'rgba(255,248,232,0.88)'; ctx.strokeStyle = '#2b1b0e'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(x, y, w, h, h / 2); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x + h / 2, y + h / 2, h / 2 - 3, 0, Math.PI * 2); ctx.fillStyle = '#ff9a3c'; ctx.fill();
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif';
+  ctx.fillText('S', x + h / 2, y + h / 2 + 1);
+  ctx.textAlign = 'left'; ctx.fillStyle = '#2b1b0e'; ctx.font = 'bold 11px Comic Sans MS, Segoe UI, sans-serif';
+  ctx.fillText(t, x + h + 3, y + h / 2 + 1);
+  ctx.restore();
+}
 function draw() {
   ctx.clearRect(0, 0, W, H);
   drawBackgroundExtras();
   drawNet();
   drawPlayer(p1); drawPlayer(p2); drawBall();
   updateAndDrawSmashEffects();
+  drawBrand();
 }
 function drawPlayer(p) {
   ctx.save();
@@ -565,11 +588,28 @@ function loop(ts) {
 }
 requestAnimationFrame(loop);
 
+// Shared Scotcha service worker (offline + install). It lives at the site root.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js').catch(function(){});
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
   });
 }
+
+// Install button: Android and desktop Chrome show a prompt, iPhone shows how to add it manually.
+(function() {
+  const ib = document.getElementById('installBtn'), hint = document.getElementById('restartHint');
+  const standalone = matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true;
+  if (standalone) return;
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  let deferred = null;
+  if (ios) ib.style.display = 'inline-block';
+  window.addEventListener('beforeinstallprompt', function(e) { e.preventDefault(); deferred = e; ib.style.display = 'inline-block'; });
+  window.addEventListener('appinstalled', function() { ib.style.display = 'none'; hint.textContent = ''; });
+  bindTap(ib, async function() {
+    if (deferred) { deferred.prompt(); try { await deferred.userChoice; } catch (e) {} deferred = null; ib.style.display = 'none'; }
+    else { hint.textContent = 'On iPhone or iPad: tap Share, then “Add to Home Screen”. It opens full screen like an app.'; }
+  });
+})();
 </script>
 </body>
 </html>
